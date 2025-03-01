@@ -48,7 +48,7 @@ public class Library {
         if (wasDeleted) {
             System.out.println("Book removed successfully.");
         } else {
-            System.out.println("Book not found.");
+            System.out.println("Book not founded.");
         }
     }
 
@@ -57,11 +57,69 @@ public class Library {
         System.out.println("Patron added successfully.");
     }
 
-    public void searchBook(String query){
-        for (Book book : books){
-            if(book.title.isEmpty()){
-                
+    private Book getBook(String query) {
+        for (Book book : books) {
+            if (book.title.contains(query) || book.author.contains(query) || book.isbn.contains(query)) {
+                return book;
             }
+        }
+        return null;
+    }
+
+    public void searchBook(String query){
+        Book book = getBook(query);
+        if (book != null) {
+            System.out.println("----------------------------");
+            book.display();
+        } else {
+            System.out.println("Book not founded.");
+        }
+    }
+
+    private Patron getPatron(int id) {
+        for (Patron patron : patrons) {
+            if (patron.id == id) {
+                return patron;
+            }
+        }
+        return null;
+    }
+
+    public void borrowBook(String query, int patronId) {
+        Book book = getBook(query);
+        Patron patron = getPatron(patronId);
+        if (book != null) {
+            if (patron != null) {
+                if (book.getIsAvailable()) {
+                    book.borrowBook(patronId);
+                    System.out.println("Book borrowed successfully.");
+                } else {
+                    System.out.println("Book is not available.");
+                }
+            } else {
+                System.out.println("Patron not founded.");
+            }
+        } else {
+            System.out.println("Book not founded.");
+        }
+    }
+
+    public void returnBook(String query, int patronId) {
+        Book book = getBook(query);
+        Patron patron = getPatron(patronId);
+        if (book != null) {
+            if (patron != null) {
+                if (!book.getIsAvailable() && book.getBorrowedBy() == patronId) {
+                    book.returnBook();
+                    System.out.println("Book returned successfully.");
+                } else {
+                    System.out.println("Book is not borrowed by this patron.");
+                }
+            } else {
+                System.out.println("Patron not founded.");
+            }
+        } else {
+            System.out.println("Book not founded.");
         }
     }
 }
