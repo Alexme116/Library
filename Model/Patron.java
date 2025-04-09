@@ -1,13 +1,15 @@
 package Model;
+
 import java.util.ArrayList;
+import java.util.List;
 
 public class Patron {
-    public String name;
+    private String name;
     public int id;
-    public String details; 
-    public ArrayList<Book> borrowedBooks;
+    private String details;
+    private final List<Book> borrowedBooks;
 
-    public Patron (String name, int id, String details){
+    public Patron(String name, int id, String details) {
         this.name = name;
         this.id = id;
         this.details = details;
@@ -15,63 +17,41 @@ public class Patron {
     }
 
     public void displayPatron() {
-        System.out.println("Name: " + name);
-        System.out.println("ID: " + id);
-        System.out.println("Contact details: " + details);
-        System.out.println("----------------------------");
+        System.out.println("Name: " + name +
+                "\nID: " + id +
+                "\nDetails: " + details +
+                "\nBorrowed Books: " + borrowedBooks.size());
     }
 
     public void borrowBook(Book book) {
-        if (borrowedBooks.contains(book)) {
-            System.out.println("Book already borrowed.");
-            book.returnBook();
-            return;
-        }
         borrowedBooks.add(book);
-        System.out.println("Book borrowed successfully.");
+        int copies = book.getNumberOfCopies();
+        book.setNumberOfCopies(copies-1);
+        System.out.println(name + " borrowed: " + book.getTitle());
     }
 
     public void returnBook(Book book) {
-        if (!borrowedBooks.contains(book)) {
-            System.out.println("Book not borrowed.");
-            book.borrowBook();
-            return;
-        }
-        borrowedBooks.remove(book);
-        System.out.println("Book returned successfully.");
-    }
-
-    public void displayBorrowedBooks() {
-        if (borrowedBooks.isEmpty()) {
-            System.out.println("No books borrowed.");
-            return;
-        }
-        System.out.println("Borrowed books "+ numberOfBorrowedBooks()+ " books:");
-        for (int i = 0; i < borrowedBooks.size(); i++) {
-            System.out.println("----------------------------");
-            System.out.println(i + 1 + ".");
-            borrowedBooks.get(i).displayNoCopies();
+        if (borrowedBooks.remove(book)) {
+            System.out.println(name + " returned: " + book.getTitle());
+        } else {
+            System.out.println(name + " did not borrow: " + book.getTitle());
         }
     }
 
-    public int numberOfBorrowedBooks() {
-        return borrowedBooks.size();
+    // Getters y setters
+    public String getName() {
+        return name;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public String getDetails() {
+        return details;
     }
 
     public void setDetails(String details) {
         this.details = details;
-    }
-
-
-    public String getName() {
-        return name;
     }
 }

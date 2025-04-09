@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Library {
-    private List<Book> books;
-    private List<Patron> patrons;
+    private final List<Book> books;
+    private final List<Patron> patrons;
 
     public Library() {
         this.books = new ArrayList<>();
         this.patrons = new ArrayList<>();
     }
 
-    public void displayAllBooks(){
+    public synchronized void displayAllBooks(){
         if (books.isEmpty()) {
             System.out.println("There are no books in the library.");
             return;
@@ -25,7 +25,7 @@ public class Library {
         }
     }
 
-    public void displayPatron(){
+    public synchronized void displayPatron(){
         if (patrons.isEmpty()) {
             System.out.println("There are no patrons in the library.");
             return;
@@ -38,12 +38,12 @@ public class Library {
         }
     }
 
-    public void addBook(String title, String author, int numberOfCopies, String isbn) {
-        books.add(new Book(title, author, numberOfCopies, isbn));
+    public synchronized void addBook(Book book) {
+        books.add(book);
         System.out.println("Book added successfully.");
     }
 
-    public void removeBook(String ISBN) {
+    public synchronized void removeBook(String ISBN) {
         boolean wasDeleted = books.removeIf(book -> book.getIsbn().equals(ISBN));
         if (wasDeleted) {
             System.out.println("Book removed successfully.");
@@ -52,91 +52,73 @@ public class Library {
         }
     }
 
-    public void addPatron(String name, int id, String details) {
-        if(id < 0 ){
+    public synchronized void addPatron(Patron patron) {
+        if(patron.id < 0 ){
             System.out.println("ID cannot be negative.");
             return;
         }
-        for(Patron patron : patrons){
-            if(patron.id == id){
+        for(Patron p : patrons){
+            if(p.id == patron.id){
                 throw new IllegalArgumentException("Patron with this ID already exists.");
             }
         }
-        patrons.add(new Patron(name, id, details ));
+        patrons.add(patron);
         System.out.println("Patron added successfully.");
     }
 
-    // 1 for title, 2 for author, 3 for isbn
-    public Book searchBook(int type, String query){
+    public synchronized Book searchBook(int type, String query){
         for (Book book : books){
-            if(type == 1){
-                if(book.getTitle().isEmpty()){
-                    throw new IllegalArgumentException("Not book found.");
+            switch (type) {
+                case 1 -> {
+                    if (book.getTitle().equals(query)) return book;
                 }
-                else if(book.getTitle().equals(query)){
-                    return book;
+                case 2 -> {
+                    if (book.getAuthor().equals(query)) return book;
                 }
-            }
-            else if(type == 2){
-
-                if(book.getAuthor().isEmpty()){
-                    throw new IllegalArgumentException("Not book found.");
-                }
-                else if(book.getAuthor().equals(query)){
-                    return book;
-                }
-            }
-            else if(type == 3){
-                if(book.getIsbn().isEmpty()){
-                    throw new IllegalArgumentException("Not book found.");
-                }
-                else if(book.getIsbn().equals(query)){
-                    return book;
+                case 3 -> {
+                    if (book.getIsbn().equals(query)) return book;
                 }
             }
         }
-        throw new IllegalArgumentException("Not book found.");
+        throw new IllegalArgumentException("No book found.");
     }
 
-    public Patron searchPatron(int id){
+    public synchronized Patron searchPatron(int id){
         for (Patron patron : patrons){
             if(patron.id == id){
                 return patron;
             }
         }
-        throw new IllegalArgumentException("No patrons found");
+        throw new IllegalArgumentException("No patron found.");
     }
 
-    public void borrowBook(int patronId, String isbn) {
-        Patron patron = searchPatron(patronId);
-        Book book = searchBook(3, isbn);
-        if (patron.name.equals("No patrons found")) {
-            System.out.println("Patron not found.");
-        } else if (book.getTitle().equals("No books found")) {
-            System.out.println("Book not found.");
-        } else {
+    public synchronized void borrowBook(int patronId, String isbn) {
+        try {
+            Patron patron = searchPatron(patronId);
+            Book book = searchBook(3, isbn);
             if (book.borrowBook()) {
                 patron.borrowBook(book);
             } else {
-                System.out.println("Book not available. No more copies left");
+                System.out.println("The patron is " + patronId);
+                System.out.println("Book not available. No more copies left.");
             }
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
         }
     }
 
-    public void returnBook(int patronId, String isbn) {
-        Patron patron = searchPatron(patronId);
-        Book book = searchBook(3, isbn);
-        if (patron.name.equals("No patrons found")) {
-            System.out.println("Patron not found.");
-        } else if (book.getTitle().equals("No books found")) {
-            System.out.println("Book not found.");
-        } else {
+    public synchronized void returnBook(int patronId, String isbn) {
+        try {
+            Patron patron = searchPatron(patronId);
+            Book book = searchBook(3, isbn);
             patron.returnBook(book);
             book.returnBook();
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
         }
     }
 
-    public boolean isbnAlreadyExists(String isbn){
+    public synchronized boolean isbnAlreadyExists(String isbn){
         for(Book book : books){
             if(book.getIsbn().equals(isbn)){
                 return true;
@@ -145,12 +127,12 @@ public class Library {
         return false;
     }
 
-    public void editBook(String isbn, String title, String author, int numberOfCopies){
+    public synchronized void editBook(String isbn, String title, String author, int numberOfCopies){
         for(Book book : books){
             if(book.getIsbn().equals(isbn)){
-                book.setTitle(title) ;
+                book.setTitle(title);
                 book.setAuthor(author);
-                book.setNumberOfCopies(numberOfCopies);;
+                book.setNumberOfCopies(numberOfCopies);
                 System.out.println("Book edited successfully.");
                 return;
             }
@@ -158,8 +140,8 @@ public class Library {
         System.out.println("Book not found.");
     }
 
-    public void editPatron(int id, String name, String details){
-        Patron patronToEdit =searchPatron(id);
+    public synchronized void editPatron(int id, String name, String details){
+        Patron patronToEdit = searchPatron(id);
         patronToEdit.setName(name);
         patronToEdit.setDetails(details);
         System.out.println("Patron edited successfully.");

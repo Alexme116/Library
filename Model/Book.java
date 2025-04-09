@@ -1,9 +1,10 @@
 package Model;
+
 public class Book {
     private String title;
     private String author;
     private int numberOfCopies;
-    private String isbn;
+    private final String isbn;
 
     public Book(String title, String author, int numberOfCopies, String isbn) {
         this.title = title;
@@ -13,60 +14,50 @@ public class Book {
     }
 
     public void display() {
-        System.out.println("Title: " + title);
-        System.out.println("Author: " + author);
-        System.out.println("Number of copies: " + numberOfCopies);
-        System.out.println("ISBN: " + isbn);
-        System.out.println("----------------------------");
+        System.out.println("Title: " + title +
+                "\nAuthor: " + author +
+                "\nCopies: " + numberOfCopies +
+                "\nISBN: " + isbn);
     }
 
-    public void displayNoCopies() {
-        System.out.println("Title: " + title);
-        System.out.println("Author: " + author);
-        System.out.println("ISBN: " + isbn);
-        System.out.println("----------------------------");
-    }
-
-    public boolean borrowBook() {
+    public synchronized boolean borrowBook() {
         if (numberOfCopies > 0) {
             numberOfCopies--;
             return true;
-        } else {
-            return false;
         }
+        return false;
+    }
+
+    public synchronized void returnBook() {
+        numberOfCopies++;
+    }
+
+    // Getters y setters
+    public String getTitle() {
+        return title;
     }
 
     public void setTitle(String title) {
         this.title = title;
     }
 
+    public String getAuthor() {
+        return author;
+    }
+
     public void setAuthor(String author) {
         this.author = author;
     }
 
-    public void setIsbn(String isbn) {
-        this.isbn = isbn;
+    public int getNumberOfCopies() {
+        return numberOfCopies;
     }
 
     public void setNumberOfCopies(int numberOfCopies) {
         this.numberOfCopies = numberOfCopies;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
     public String getIsbn() {
         return isbn;
     }
-
-
-    public void returnBook() {
-        numberOfCopies++;
-    }
-
 }
