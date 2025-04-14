@@ -44,6 +44,21 @@ El sistema se compone de las siguientes clases principales:
 - Crea múltiples instancias de la clase `Patron`, cada una representando a un usuario de la biblioteca.
 - Lanza los hilos para simular las interacciones concurrentes con la biblioteca.
 
+### Testing
+
+El sistema incluye una prueba unitaria diseñada específicamente para verificar el comportamiento del sistema en un entorno concurrente. Esta prueba se encuentra en la clase `LibraryMultithreadedTest` y valida que la lógica de préstamo y devolución de libros sea segura bajo múltiples hilos.
+
+#### Objetivo
+
+Asegurar que cuando múltiples usuarios (hilos) interactúan con la biblioteca simultáneamente, el número de copias disponibles de un libro nunca se vuelva inconsistente. Específicamente, después de que todos los usuarios hayan devuelto los libros, debe haber la misma cantidad de copias que al inicio.
+
+### Qué valida
+
+- Se registran **3 copias** de un libro.
+- Se crean **10 hilos** (patronos) que intentan tomar prestado y devolver el libro.
+- Se sincronizan las acciones para evitar **condiciones de carrera** usando `synchronized` y `CountDownLatch`.
+- Se verifica al final que las **3 copias hayan sido devueltas correctamente**.
+
 ## Cómo ejecutar el sistema
 1. Clona el repositorio.
 2. Asegúrate de tener instalado lo necesario.
