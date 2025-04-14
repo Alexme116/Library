@@ -56,7 +56,7 @@ mvn clean compile
 ```
 4. Corre el código:
 ```bash
-mvn exec:java -Dexec.mainClass="src.main.java.Main"
+mvn exec:java -Dexec.mainClass="app.Main"
 ```
 5. Corre los tests:
 ```bash

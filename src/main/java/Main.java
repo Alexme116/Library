@@ -1,6 +1,6 @@
-package src.main.java;
-import src.main.java.Model.Library;
-import src.main.java.Model.Patron;
+package app;
+import Model.Library;
+import Model.Patron;
 
 public class Main {
     public static void main(String[] args) {
